@@ -1,17 +1,24 @@
-let current, next, gen = 0, res = 50
+let current,
+  next,
+  gen = 0,
+  res = 10
 
 function setup() {
   createCanvas(800, 600)
-  const size = width / res * height / res
+  const size = ((width / res) * height) / res
   current = new Array(size)
   next = new Array(size)
   current.fill(0)
-  current.forEach((cell, i) => {
-    current[i] = floor(random(2))
-  })
   next.fill(0)
-  // noLoop()
-  // frameRate(1)
+  frameRate(10)
+  const reset = createButton('Reset')
+  reset.mousePressed(() => {
+    current.forEach((cell, i) => {
+      current[i] = floor(random(2))
+    })
+    gen = 0
+    loop()
+  })
 }
 
 function draw() {
@@ -30,23 +37,26 @@ function draw() {
     for (let c = col - 1; c <= col + 1; c++) {
       for (let r = row - 1; r <= row + 1; r++) {
         if (c >= 0 && c < width / res && r >= 0 && r < height / res) {
-          const j = width / res * r + c
+          const j = (width / res) * r + c
           if (j !== i && current[j] === 1) sum++
         }
       }
     }
-    next[i] = ((cell === 1 && sum === 2) || sum === 3) ? 1 : 0
+    next[i] = (cell === 1 && sum === 2) || sum === 3 ? 1 : 0
+    // draw neighbor sums
     if (next[i] === 1) {
       fill(color('green'))
     } else {
       fill(color('red'))
     }
-    text(sum, col * res + res / 2, row * res + res / 2)
+    // text(sum, col * res + res / 2, row * res + res / 2)
   })
-  // if (JSON.stringify(current) == JSON.stringify(next)) {
-  //   noLoop()
-  //   console.log(gen)
-  // }
-  current = next
+  // check to see if reached stasis
+  if (JSON.stringify(current) == JSON.stringify(next)) {
+    noLoop()
+    console.log(gen)
+  }
+  // go to next generation
+  current = next.slice()
   gen++
 }
